@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Input Tambah Data Produk</title>
+</head>
+<body>
+    <h1>Form Tambah Data Produk</h1>
+    <form id="productForm">
+        <table>
+            <tr>
+                <td><label for="namaProduk">Nama Produk</label></td>
+                <td><input type="text" id="namaProduk" name="nama" maxlength="30" required></td>
+            </tr>
+            <tr>
+                <td><label for="deskripsi">Deskripsi</label></td>
+                <td><textarea id="deskripsi" name="deskripsi" rows="5" cols="20" maxlength="100" required></textarea></td>
+            </tr>
+            <tr>
+                <td><label for="kategori">Kategori</label></td>
+                <td>
+                    <select name="kategori" id="kategori" onchange="showSubKategori()">
+                        <option value="" disabled selected hidden>--Pilih Kategori--</option>
+                        <option value="baju">Baju</option>
+                        <option value="alat elektronik">Alat Elektronik</option>
+                        <option value="alat tulis">Alat Tulis</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="subKategori">Sub Kategori</label></td>
+                <td><select name="subKategori" id="subKategori">
+                    <option value="">--Pilih Sub Kategori--</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td><label for="hargaSatuan">Harga Satuan</label></td>
+                <td><input type="text" id="hargaSatuan" name="hargaSatuan" required></td>
+            </tr>
+            <tr>
+                <td><label>Grosir</label></td>
+                <td>
+                    <input type="radio" id="grosirYa" name="grosir" value="Yes" onchange="toggleHargaGrosir()">
+                    <label for="grosirYa">Ya</label>
+                    <input type="radio" id="grosirTidak" name="grosir" value="No" checked onchange="toggleHargaGrosir()">
+                    <label for="grosirTidak">Tidak</label>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="hargaGrosir">Harga Grosir</label></td>
+                <td><input type="text" id="hargaGrosir" name="hargaGrosir" disabled></td>
+            </tr>
+            <tr>
+                <td><label>Jasa Kirim</label></td>
+                <td>
+                    <input type="checkbox" name="jasakirim[]" value="JNE">JNE<br>
+                    <input type="checkbox" name="jasakirim[]" value="TIKI">TIKI<br>
+                    <input type="checkbox" name="jasakirim[]" value="SiCepat">SiCepat<br>
+                    <input type="checkbox" name="jasakirim[]" value="NinjaExpress">NinjaExpress<br>
+                    <input type="checkbox" name="jasakirim[]" value="Wahana">Wahana<br>
+                </td>
+            </tr>
+            <tr>
+                <td>Captcha</td>
+                <td><input type="text" id="captcha" readonly>
+                <input type="text" id="captcha-input" placeholder=""></td>
+                <tr>
+                <td>
+                <button onclick="validateCaptcha()">Submit</button>
+                <button onclick="generateNewCaptcha()">Reset</button>
+                </td>
+                </tr>
+            </tr>
+        </table>
+    </form>
+
+    <script>
+        function showSubKategori() {
+            var kategori = document.getElementById("kategori").value;
+            var subKategori = document.getElementById("subKategori");
+
+            subKategori.innerHTML = '<option value="">-- Pilih Sub Kategori --</option>';
+
+            var options = [];
+
+            if (kategori === "baju") {
+                options = ['Baju Pria', 'Baju Wanita', 'Baju Anak'];
+            } else if (kategori === "alat elektronik") {
+                options = ['Mesin Cuci', 'Kulkas', 'AC'];
+            } else if (kategori === "alat tulis") {
+                options = ['Kertas', 'Map', 'Pulpen'];
+            }
+
+            options.forEach(function(option) {
+                var opt = document.createElement("option");
+                opt.value = option.toLowerCase().replace(/\s+/g, '-');
+                opt.text = option;
+                subKategori.appendChild(opt);
+            });
+        }
+
+        function toggleHargaGrosir() {
+            var grosirYa = document.getElementById('grosirYa').checked;
+            var hargaGrosir = document.getElementById('hargaGrosir');
+            hargaGrosir.disabled = !grosirYa;
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function(event) {
+            var namaProduk = document.getElementById('namaProduk').value;
+            var deskripsi = document.getElementById('deskripsi').value;
+            var hargaSatuan = document.getElementById('hargaSatuan').value;
+            var hargaGrosir = document.getElementById('hargaGrosir').value;
+            var errorDiv = document.getElementById('error');
+
+            // Validasi Nama Produk
+            if (namaProduk.length < 5 || namaProduk.length > 30) {
+                errorDiv.textContent = "Nama Produk harus diisi, minimal 5 karakter, maksimal 30 karakter.";
+                event.preventDefault();
+                return;
+            }
+
+            // Validasi Deskripsi
+            if (deskripsi.length < 5 || deskripsi.length > 100) {
+                errorDiv.textContent = "Deskripsi harus diisi, minimal 5 karakter, maksimal 100 karakter.";
+                event.preventDefault();
+                return;
+            }
+
+            //Validasi Harga Satuan
+            var hargaSatuanNum = Number(hargaSatuan);
+            if (isNaN(hargaSatuanNum) || hargaSatuanNum <= 0) {
+            errorDiv.textContent = "Harga Satuan harus berupa angka positif.";
+            event.preventDefault();
+            return;
+            }
+
+            //Validasi Harga Grosir
+            var hargaGrosirNum = Number(hargaGrosir);
+            if (document.getElementById('grosirYa').checked && (isNaN(hargaGrosirNum) || grosirPriceNum <= 0)) {
+            errorDiv.textContent = "Harga Grosir harus berupa angka positif.";
+            event.preventDefault();
+            return;
+            }
+
+    errorDiv.textContent = "";
+});
+            // Captcha
+            function generateRandomString(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+            function validateCaptcha() {
+            const captcha = document.getElementById('captcha').value;
+            const userinput = document.getElementById('captcha-input').value;
+
+            if (captcha === userinput) {
+                alert('Captcha benar!');
+            } else {
+                alert('Captcha yang dimasukkan salah. Silakan coba lagi.');
+            }
+        }
+
+        function generateNewCaptcha() {
+            document.getElementById('captcha').value = generateRandomString(5);
+        }
+
+        // Generate otomatis saat di load
+        document.getElementById('captcha').value = generateRandomString(5);
+    </script>
+</body>
+</html>
